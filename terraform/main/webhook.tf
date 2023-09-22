@@ -5,8 +5,7 @@ resource "github_repository_webhook" "repository_webhooks" {
   events     = ["push"]
 
   configuration {
-    url          = aws_lambda_function_url.webhook_url.function_url
+    url          = aws_api_gateway_deployment.lambda.invoke_url
     content_type = "json"
-    # secret       = "your-webhook-secret"
   }
 }

@@ -24,7 +24,6 @@ def lambda_handler(event, context):
         }
 
         commit_id = commit['id']
-        title = commit['message'].replace(' ', '_')
         s3 = boto3.client('s3')
         filename = f"{repo_name}/{commit_id}"
         content = json.dumps(files)

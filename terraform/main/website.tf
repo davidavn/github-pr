@@ -1,20 +1,20 @@
 resource "aws_s3_bucket" "github_metadata" {
-  bucket = "github-pr-metadata"
+  bucket = var.data_bucket
 }
 
 resource "aws_s3_bucket_cors_configuration" "github_metadata" {
   bucket = aws_s3_bucket.github_metadata.id
 
   cors_rule {
-    allowed_origins = ["http://dav-website-bucket.s3-website.ca-central-1.amazonaws.com"]
+    allowed_origins = ["http://${aws_s3_bucket_website_configuration.website.website_endpoint}"]
     allowed_methods = ["GET"]
     allowed_headers = ["*"]
     expose_headers  = []
-    max_age_seconds = 3600
+    max_age_seconds = 0
   }
 }
 resource "aws_s3_bucket" "website" {
-  bucket = "dav-website-bucket"
+  bucket = var.host_bucket
 }
 
 resource "aws_s3_bucket_website_configuration" "website" {
@@ -74,7 +74,7 @@ resource "aws_s3_bucket_policy" "website_policy" {
         "Action" = [
           "s3:getObject",
         ],
-        "Resource" = ["arn:aws:s3:::dav-website-bucket/*"]
+        "Resource" = ["${aws_s3_bucket.website.arn}/*"]
       },
     ],
   })
@@ -92,7 +92,7 @@ resource "aws_s3_bucket_policy" "github_metadata_policy" {
         "Action" = [
           "s3:getObject",
         ],
-        "Resource" = ["arn:aws:s3:::github-pr-metadata/*"]
+        "Resource" = ["${aws_s3_bucket.github_metadata.arn}/*"]
       },
     ],
   })
@@ -123,45 +123,3 @@ resource "aws_s3_bucket_acl" "github_metadata" {
   bucket = aws_s3_bucket.github_metadata.id
   acl    = "public-read"
 }
-
-
-# resource "aws_iam_role" "read_role" {
-#   name = "read-role"
-
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole",
-#         Effect = "Allow",
-#         Principal = {
-#           Service = "s3.amazonaws.com"
-#         }
-#       }
-#     ]
-#   })
-# }
-
-# resource "aws_iam_policy" "s3_read_policy" {
-#   name        = "s3-read-policy"
-#   description = "Policy for read access to S3 bucket"
-
-#   policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [
-#       {
-#         Action = [
-
-#           "s3:getObject",
-#         ],
-#         Effect   = "Allow",
-#         Resource = "arn:aws:s3:::github-pr-metadata/*"
-#       },
-#     ],
-#   })
-# }
-
-# resource "aws_iam_role_policy_attachment" "attach_read_policy_to_read_role" {
-#   role       = aws_iam_role.read_role.name
-#   policy_arn = aws_iam_policy.s3_read_policy.arn
-# }

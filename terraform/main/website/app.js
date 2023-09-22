@@ -26,7 +26,7 @@ function fetchS3BucketContent() {
                     })
                     .then(content => {
                         console.log('Content:', content);
-                        li.textContent = key + content;
+                        li.textContent = key + " FILES: " + content;
                         s3FilesElement.appendChild(li);
                     })
                     .catch(error => {
@@ -40,5 +40,4 @@ function fetchS3BucketContent() {
         });
 }
 
-// Call the function when the page is loaded
 document.addEventListener('DOMContentLoaded', fetchS3BucketContent);

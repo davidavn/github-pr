@@ -11,3 +11,11 @@ variable "repository_names" {
     "repo2",
   ]
 }
+
+variable "data_bucket" {
+  type = string
+}
+
+variable "host_bucket" {
+  type = string
+}

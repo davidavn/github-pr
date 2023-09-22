@@ -54,7 +54,11 @@ resource "aws_lambda_function" "github_webhook_lambda" {
   source_code_hash = filebase64sha256("${path.module}/python/lambda_function.zip")
 }
 
-resource "aws_lambda_function_url" "webhook_url" {
-  function_name      = aws_lambda_function.github_webhook_lambda.function_name
-  authorization_type = "NONE"
+resource "aws_lambda_permission" "apigw" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.github_webhook_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.lambda.execution_arn}/*/*"
 }
